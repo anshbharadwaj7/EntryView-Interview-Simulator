@@ -13,13 +13,19 @@ import {
 async function Home() {
   const user = await getCurrentUser();
 
-  const [userInterviews, allInterview] = await Promise.all([
-    getInterviewsByUserId(user?.id!),
-    getLatestInterviews({ userId: user?.id! }),
+  // 1. Fetch data safely with a fallback for the ID
+  const [userInterviewsRaw, allInterviewRaw] = await Promise.all([
+    getInterviewsByUserId(user?.id || ""),
+    getLatestInterviews({ userId: user?.id || "" }),
   ]);
 
-  const hasPastInterviews = userInterviews?.length! > 0;
-  const hasUpcomingInterviews = allInterview?.length! > 0;
+  // 2. Force them to be arrays [] so .map() never sees "undefined"
+  const userInterviews = userInterviewsRaw || [];
+  const allInterview = allInterviewRaw || [];
+
+  // 3. Check length without using the "!" symbol
+  const hasPastInterviews = userInterviews.length > 0;
+  const hasUpcomingInterviews = allInterview.length > 0;
 
   return (
     <>
